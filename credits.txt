@@ -1,0 +1,18 @@
+CNF rules:
+https://april.eecs.umich.edu/courses/eecs492_w10/wiki/images/6/6b/CNF_conversion.pdf
+
+Skolemiztion:
+https://web.cs.ucdavis.edu/~vemuri/classes/ecs170/predlogic.pdf
+
+1. Eliminate all implications ⇒
+2. Reduce the scope of all ¬to single term. *
+3. Make all variable names unique
+4. Move Quantifiers Left *
+5. Eliminate Existential Quantifiers * (Skolemiztion)
+6. Eliminate Universal Quantifiers *
+7. Convert to conjunction of disjunctions
+8. Create separate clause for each conjunctions.
+
+Unification:
+https://www.cs.toronto.edu/~sheila/384/w11/Lectures/csc384w11-KR-tutorial.pdf
+
