@@ -1,13 +1,14 @@
 
-CNF = [
-    [['~', [('FOOD', 'x')], 'v', [('LIKES', 'Ravi', 'x')]]],
-    [['~', [('EATS', 'x', 'y')]], 'v', [('KILLED', 'x')], 'v', [('FOOD', 'y')]],
-    [[('EATS', 'Ajay', 'Peanuts')], '^', [('ALIVE', 'Ajay')]],
-    [[('KILLED', 'x')], 'v', [('ALIVE', 'x')]],
-    [['~', [('ALIVE', 'x')]], 'v', ['~', [('KILLED', 'x')]]],
-    [('LIKES', 'Ravi', 'Peanuts')],
-    ['~', [('LIKES', 'Ravi', 'Peanuts')]]
-]
+CNF = 
+	[
+    [['~', ['FOOD', 'x'], 'v', ['LIKES', 'Ravi', 'x']]],
+    [['~', ['EATS', 'x', 'y']], 'v', ['KILLED', 'x'], 'v', ['FOOD', 'y']],
+    [['EATS', 'Ajay', 'Peanuts'], '^', ['ALIVE', 'Ajay']],
+    [['KILLED', 'x'], 'v', ['ALIVE', 'x']],
+    [['~', ['ALIVE', 'x']], 'v', ['~', ['KILLED', 'x']]],
+    ['LIKES', 'Ravi', 'Peanuts'],
+    ['~', ['LIKES', 'Ravi', 'Peanuts']]
+	]
 
 '''
 Scope of an operator is defined by list followed and succeeded by it,
