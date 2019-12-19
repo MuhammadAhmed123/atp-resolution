@@ -59,8 +59,10 @@ EXAMPLE2 = [
 
 
 def checkForInsideLists(lst):
-    # helper function
-    # returns number of sub-lists present in lst
+    '''
+    helper function
+    returns number of sub-lists present in lst
+    '''
     if type(lst) != list:
         return 0
     count = 0
@@ -70,8 +72,10 @@ def checkForInsideLists(lst):
     return count
 
 def checkForInsideOperators(lst):
-    # helper function
-    # returns number of operators present in lst
+    '''
+    helper function
+    returns number of operators present in lst
+    '''
     count = 0
     for i in lst:
         if i in operators:
@@ -139,9 +143,9 @@ def negate(statement):
     '''
     @param: statement is a list
     This function performs negation of a statement, not to be confused
-    with a function for moving negation inside
+    with a function for moving negation inside.
+    Always apply this after bi_implication and implication functions.
     '''
-
     if type(statement) == list and len(statement) == 2 and checkForInsideLists(statement) == 1 and statement[0] == '~':
         # case for ['~',[A]] return [A]
         return statement[1]
@@ -167,22 +171,47 @@ def negate(statement):
 def moveInNegation(statement):
     '''
     @param: statement is a list
-    This function moves in the negation till possible
+    This function moves in the negation till possible.
+    Always apply this after bi_implication and implication functions.
     '''
-    if checkForInsideLists(statement) < 1:
+    if type(statement) != list:
         # base case
-        return statement    
 
-    if len(statement) == 2 and checkForInsideLists(statement) == 1 and statement[0] == '~':
+        # if statement in operators:
+        #     return negatedOperators[statement]
+        # else:
+        #     return statement
+        return statement
+
+    if len(statement) == 2 and checkForInsideLists(statement) == 1 and statement[0] == '~' and checkForInsideLists(statement[1]) == 0:
+        # also a base case for ['~',['PREDICATE','Arguments']]
+        return statement
+    elif len(statement) == 2 and checkForInsideLists(statement) == 1 and statement[0] == '~':
+        # case for ['~',[]] generic, so we just drop the operator and negate the following list
         return negate(statement[1])
     else:
         for i in range(len(statement)):
-            statement[i] = negate(statement[i])
-    
+            statement[i] = moveInNegation(statement[i])     # calling recursively till we get to the base cases
+
     return statement
 
 
+def resolveTillNegation(FOL):
+    '''
+    @param: a list of list containing statements in FOL form.
+    This function resolves bi-implication, implication and negation.
+    '''
+    for i in FOL:
+        bi_implication(i)
+        implication(i)
+        moveInNegation(i)
+    
+    return FOL
+
 def main():
+    '''
+    Funtion for performing all tests
+    '''
     # print(checkForInsideLists(
     #     [[], 'a', None, 'ABC', 12.4, [], [None, 3, 3.4]]))
 
@@ -219,18 +248,39 @@ def main():
     # print(test2_negation)
     # print(negate(test2_negation))
 
-    conclusion = [['LS', 'John'], '->',
-                ['~', ['$', 'z', [['HAVE', 'John', 'z'], '^', ['MOUSE', 'z']]]]]
+    # conclusion = [['LS', 'John'], '->',
+    #             ['~', ['$', 'z', [['HAVE', 'John', 'z'], '^', ['MOUSE', 'z']]]]]
 
-    print(bi_implication(conclusion))
-    print(implication(conclusion))
-    print(negate(conclusion))
+    # print(bi_implication(conclusion))
+    # print(implication(conclusion))
+    # print("---------------------------------")
+    # print(negate(conclusion))
 
-    print("---------------------------------")
-    print(moveInNegation(conclusion))
+    # print("---------------------------------")
+    # print(moveInNegation(conclusion))
 
+    # print("---------------------------------")
+
+    # test1_moveInNegation = ['~',[['A'],'v',[['B'],'^',['C']],'v',['~',[['D'],'^',['E']]]]]
+    # print(test1_moveInNegation)
+    # print(moveInNegation(test1_moveInNegation))
+
+    # test2_moveInNegation = [['A'],'v',[['B'],'^',['C']],'v',['~',[['D'],'^',['E']]]]
+    # print(test2_moveInNegation)
+    # print(moveInNegation(test2_moveInNegation))
+
+    print('###############################')
+    [print(i) for i in EXAMPLE1]
+    print('------------------------------')
+    [print(i) for i in resolveTillNegation(EXAMPLE1)]
+    
+    print('###############################')
+    [print(i) for i in EXAMPLE2]
+    print('------------------------------')
+    [print(i) for i in resolveTillNegation(EXAMPLE2)]
+    
     return None
 
 
 if __name__ == "__main__":
-    main()
+    main()      # if this file is run, then main() function is called
