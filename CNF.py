@@ -9,7 +9,7 @@ negatedOperators = {'v':'^', '^':'v', '@':'$', '$':'@'}
 '''
 
 CNF = [
-    [[['~', ['FOOD', 'x']], 'v', ['LIKES', 'Ravi', 'x']]],
+    [['~', ['FOOD', 'x']], 'v', ['LIKES', 'Ravi', 'x']],
     [['~', ['EATS', 'x', 'y']], 'v', ['KILLED', 'x'], 'v', ['FOOD', 'y']],
     [['EATS', 'Ajay', 'Peanuts'], '^', ['ALIVE', 'Ajay']],
     [['KILLED', 'x'], 'v', ['ALIVE', 'x']],
@@ -81,6 +81,14 @@ def checkForInsideOperators(lst):
         if i in operators:
             count += 1
     return count
+
+
+'''
+#########################################
+All the five following functions modify their inputs, so whenever copying
+something, use deepcopy from copy module so that the object being copied is not also modified.
+#########################################
+'''
 
 
 def bi_implication(statement):
@@ -200,11 +208,16 @@ def resolveTillNegation(FOL):
     '''
     @param: a list of list containing statements in FOL form.
     This function resolves bi-implication, implication and negation.
+    The last two elements of the modified FOL are conclusion and
+    negated conclusion, respectively.
     '''
     for i in FOL:
         bi_implication(i)
         implication(i)
         moveInNegation(i)
+    
+    conclusion = copy.deepcopy(FOL[-1])             # beware, most of the functions modify their arguments
+    FOL.append(moveInNegation(negate(conclusion)))
     
     return FOL
 
