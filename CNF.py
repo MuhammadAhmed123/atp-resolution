@@ -59,7 +59,10 @@ EXAMPLE2 = [
 
 
 def checkForInsideLists(lst):
+    # helper function
     # returns number of sub-lists present in lst
+    if type(lst) != list:
+        return 0
     count = 0
     for i in lst:
         if type(i) == list:
@@ -67,6 +70,7 @@ def checkForInsideLists(lst):
     return count
 
 def checkForInsideOperators(lst):
+    # helper function
     # returns number of operators present in lst
     count = 0
     for i in lst:
@@ -78,6 +82,7 @@ def checkForInsideOperators(lst):
 def bi_implication(statement):
     '''
     @param: statement is a list
+    Function for resolving all bi_implications
     '''
     if type(statement) != list:
         # base case
@@ -107,6 +112,7 @@ def bi_implication(statement):
 def implication(statement):
     '''
     @param: statement is a list
+    Function for resolving all bi_implications
     '''
     if type(statement) != list:
         return statement
@@ -132,7 +138,6 @@ def implication(statement):
 def negate(statement):
     '''
     @param: statement is a list
-    
     This function performs negation of a statement, not to be confused
     with a function for moving negation inside
     '''
@@ -159,8 +164,21 @@ def negate(statement):
 
     return statement
 
-def moveNegation(statement):
+def moveInNegation(statement):
+    '''
+    @param: statement is a list
+    This function moves in the negation till possible
+    '''
+    if checkForInsideLists(statement) < 1:
+        # base case
+        return statement    
 
+    if len(statement) == 2 and checkForInsideLists(statement) == 1 and statement[0] == '~':
+        return negate(statement[1])
+    else:
+        for i in range(len(statement)):
+            statement[i] = negate(statement[i])
+    
     return statement
 
 
@@ -207,6 +225,9 @@ def main():
     print(bi_implication(conclusion))
     print(implication(conclusion))
     print(negate(conclusion))
+
+    print("---------------------------------")
+    print(moveInNegation(conclusion))
 
     return None
 
