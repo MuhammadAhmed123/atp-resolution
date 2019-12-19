@@ -1,14 +1,14 @@
+import copy
 
-CNF = 
-	[
-    [['~', ['FOOD', 'x'], 'v', ['LIKES', 'Ravi', 'x']]],
+CNF = [
+    [[['~', ['FOOD', 'x']], 'v', ['LIKES', 'Ravi', 'x']]],
     [['~', ['EATS', 'x', 'y']], 'v', ['KILLED', 'x'], 'v', ['FOOD', 'y']],
     [['EATS', 'Ajay', 'Peanuts'], '^', ['ALIVE', 'Ajay']],
     [['KILLED', 'x'], 'v', ['ALIVE', 'x']],
     [['~', ['ALIVE', 'x']], 'v', ['~', ['KILLED', 'x']]],
     ['LIKES', 'Ravi', 'Peanuts'],
     ['~', ['LIKES', 'Ravi', 'Peanuts']]
-	]
+]
 
 '''
 Scope of an operator is defined by list followed and succeeded by it,
@@ -24,3 +24,114 @@ All words with first letter capital are constants such as 'Ajay' and 'Peanuts'.
 
 Last two elements of CNF are conclusion and negated conclusion (CNF[-1] and CNF[-2])
 '''
+
+EXAMPLE1 = [['@','x',[['HOUND','x'],'->',['HOWL','x']]],
+            ['@','x',['@','y',[[['HAVE','x','y'],'^',['CAT','y']],'->',['~',['$','z',[['HAVE','x','z'],'^',['MOUSE','z']]]]]]],
+            ['@','x',[['LS','x'],'->',['~',['$','y',[['HAVE','x','y'],'^',['HOWL','y']]]]]],
+            ['$','x',[['HAVE','John','x'],'^',[['CAT','x'],'v',['HOUND','x']]]],
+            [['LS','John'],'->',['~',['$','z',[['HAVE','John','z'],'^',['MOUSE','z']]]]]
+            ]
+
+EXAMPLE2 = [
+    ['MAN','Marcus'],
+    ['ROMAN','Marcus'],
+    ['@','x',[['MAN','x'],'->',['PERSON','x']]],
+    ['RULER','Caeser'],
+    ['@','x',[['ROMAN','x'],'->',[['LOYAL','x','Caeser'],'v',['HATE','x','Caeser']]]],
+    ['@','x',['$','y',['LOYAL','x','y']]],
+    ['@','x',['@','y',[[['PERSON','x'],'^',['RULER','y'],'^',['TRYASSASIN','x','y']],'->',['~',['LOYAL','x','y']]]]],
+    ['TRYASSASIN','Marcus','Caeser']
+]
+
+def checkForInsideLists(lst):
+    # returns number of sub-lists present in lst
+    count = 0
+    for i in lst:
+        if type(i) == list:
+            count += 1
+    return count
+
+def bi_implication(statement):
+    '''
+    @param: statement is a list
+    '''
+    if type(statement) != list:
+        return statement
+
+    if checkForInsideLists(statement) < 1:
+        #base case
+        return statement
+
+    if checkForInsideLists(statement) == 2 and len(statement) == 3 and statement[1] == '<->':
+        #the case for [[],'<->,[]]
+        B = bi_implication(statement.pop())     # calling recursively
+        operator = statement.pop()
+        A = bi_implication(statement.pop())                     # calling recursively
+        statement.append([A,'->',B])
+        statement.append('^')
+        statement.append([B,'->',A])
+        return statement
+    else:
+        for i in statement:
+            bi_implication(i)
+
+    return statement
+
+
+def implication(statement):
+    '''
+    @param: statement is a list
+    '''
+    if type(statement) != list:
+        return statement
+    
+    if checkForInsideLists(statement) < 1:
+        return statement
+    
+    if checkForInsideLists(statement) == 2 and len(statement) == 3 and statement[1] == '->':
+        B = implication(statement.pop())
+        operator = statement.pop()
+        A = implication(statement.pop())
+        statement.append(['~',A])
+        statement.append('v')
+        statement.append(B)
+        return statement
+    else:
+        for i in statement:
+            implication(i)
+
+    return statement
+
+
+def main():
+    print(checkForInsideLists([[],'a',None,'ABC',12.4,[],[None,3,3.4]]))
+    
+    test1_bi_implication = [['a'],'<->',['b']]
+    print(test1_bi_implication)
+    print(bi_implication(test1_bi_implication))
+    print(implication(test1_bi_implication))
+
+    # test2_bi_implication = [[['a'],'<->',['b']],'<->',['c']]
+    # print(test2_bi_implication)
+    # print(bi_implication(test2_bi_implication))
+    
+    # test3_bi_implication = ['~',[['b'],'<->',['c']]]
+    # print(test3_bi_implication)
+    # print(bi_implication(test3_bi_implication))
+
+    # test1_implication = [['MAN','Marcus'],'->',['MORTAL','Marcus']]
+    # print(test1_implication)
+    # print(implication(test1_implication))
+
+    # test2_implication = ['@','x',[['ROMAN','x'],'->',[['LOYAL','x','Caeser'],'v',['HATE','x','Caeser']]]]
+    # print(test2_implication)
+    # print(implication(test2_implication))
+
+    # test3_implication = [[['a'],'->',['b']],'->',['c']]
+    # print(test3_implication)
+    # print(implication(test3_implication))
+
+    return None
+
+if __name__ == "__main__":
+    main()
