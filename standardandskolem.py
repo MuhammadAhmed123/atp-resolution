@@ -150,15 +150,6 @@ def Standard(lst):
 	print(lst)
 
 Standard(EXAMPLE1)
-
- 
-
-
-
-
-
-
-
 	
 
 MakeClauses(CNF)
