@@ -46,26 +46,58 @@ EXAMPLE2 = [
 ['@', 'x', ['@', 'y', [[['~', ['PERSON', 'x']], 'v', ['~', ['RULER', 'y']], 'v', ['~', ['TRYASSASIN', 'x', 'y']]], 'v', ['~', ['LOYAL', 'x', 'y']]]]],
 ['TRYASSASIN', 'Marcus', 'Caeser']]
 
-def StateSkolem(statement):
-	variables = ['x', 'y', 'z', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'a', 'b', 'c', 'd', 'e', 'f', 'g']
-
+def StateSkolemExist(statement, stack, EQnumberlist, skolemseen, skolemfuncs):  #GETTING THERE :'(
+	variables = ['x', 'y', 'z', 'p', 'q', 'r', 's', 't', 'u', 'w', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'a', 'b', 'c', 'd', 'e', 'f', 'g']  # except o p and v
+	#skolemseen = {}
+	#skolemfuncs = ['XX', 'YY', 'ZZ', 'PP', 'QQ', 'RR', 'SS', 'TT', 'UU', 'WW', 'HH', 'II', 'JJ', 'KK', 'LL', 'MM', 'NN', 'AA', 'BB', 'CC', 'DD', 'EE', 'FF', 'GG']
+	stackswitch = False
+	# EQnumberlist
+	# stack = []
+	EQnumber = 0
 	statementlen = len(statement)
-	elementn = 0
-	stack = []
 	while elementn != statementlen:
 		element = statement[elementn]
-		if len(stack) == 0 and element == '@':
-			stack.append(elementn)
+		if type(element) == type(listtype):
+			stackswitch = False
+			if EQnumber > 0:
+				EQnumberlist.append(EQnumber)
+			statement[elementn] = StateSkolemExist(element, stack, EQnumberlist, skolemseen, skolemfuncs)
 		
+		elif element == '$':
+			stackswitch = True
+			statement.pop(elementn)
+			statementlen = statementlen - 1
+
+		elif element in variables and stackswitch:
+			stack.append(element)
+			EQnumber = EQnumber + 1
+
+			statement.pop(elementn)
+			statementlen = statementlen - 1
+
+		elif element in variables and not stackswitch:
+			EQtn = EQnumberlist.top()
+			for i in range(1,EQtn + 1):
+				if stack[0 - EQtn] == element: 
+					if element not in variableseen:
+						swapvar = [skolemfuncs.pop(0)]
+						statement[elementn] = swapvar
+						variableseen[element] = swapvar
+					else:
+						statement[elementn] = variableseen[element]
+
+		elementn = elementn + 1
+
+	EQtn = EQnumberlist.pop()
+	for i in range(EQtn):
+		stack.pop()
+
+	return statement
 
 
-
-
-	
-
-def MakeClauses(lst):
-	premisen = 0
-	conclusionn = 0
+def MakeClauses(lst):  #DIVIDES INTO CLAUSES AT '^'
+	# premisen = 0
+	# conclusionn = 0
 	lstlen = len(lst)
 	statementn = 0
 
@@ -91,7 +123,7 @@ def MakeClauses(lst):
 			elementn = elementn + 1
 		statementn = statementn + 1
 
-	premisen = len(lst[0:statementn])
+	# premisen = len(lst[0:statementn])
 	constart = statementn
 
 	#For Conclusion
@@ -116,20 +148,20 @@ def MakeClauses(lst):
 			elementn = elementn + 1
 		statementn = statementn + 1
 
-	conclusionn = len(lst[constart:statementn])
+	# conclusionn = len(lst[constart:statementn])
 
-	lst.append((premisen, conclusionn))
+	# lst.append((premisen, conclusionn))
 	print(lst)
 
 
-def StateStandard(statement, variableseen, variables):
+def StateStandard(statement, variableseen, variables):  #HELPER FUNCTION
 	listtype = []
 	chartype = 'c'
 	statementlen = len(statement)
 	for elementn in range(statementlen):
 		element = statement[elementn]
 		if type(element) == type(listtype):
-			StateStandard(element, variableseen, variables)
+			statement[elementn] = StateStandard(element, variableseen, variables)
 		elif type(element) == type(chartype) and len(element) == 1 and element not in "@$~v^":
 			if element not in variableseen:
 				swapvar = variables.pop(0)
@@ -139,19 +171,14 @@ def StateStandard(statement, variableseen, variables):
 				statement[elementn] = variableseen[element]
 	return statement
 
-def Standard(lst):
-	variables = ['x', 'y', 'z', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'a', 'b', 'c', 'd', 'e', 'f', 'g']  #excluding o and p
+def Standard(lst):  #FUNCTION FOR STANDARDIZATION
+	variables = ['x', 'y', 'z', 'p', 'q', 'r', 's', 't', 'u', 'w', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'a', 'b', 'c', 'd', 'e', 'f', 'g']   # except o p and v
 	lstlen = len(lst)
 	for statementn in range(lstlen):
 		variableseen = {}
 		newstate = StateStandard(lst[statementn], variableseen, variables)
 		lst[statementn] = newstate
-		# print(newstate)
+		print(newstate)
 	print(lst)
 
-
-print("-------------------------------")
-Standard(EXAMPLE2)
-	
-
-# MakeClauses(CNF)
+Standard(EXAMPLE1)
