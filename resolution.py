@@ -48,13 +48,30 @@ def apply_subs(subs, exp):
     #print(subs)
     for i in range(len(exp)):
         if type(exp[i]) is list:
+            #print("This is", exp[i])
             for j in range(len(exp[i])):
                 if exp[i][j] == subs[1]:
+                    #print(subs[1])
+                    #print(exp[i][j])
                     exp[i][j] = subs[0]
                 else:
                     if exp[i] == subs[1]:
                         exp[i] = subs[0]
     #return exp
+def apply_subs_to_clause(subs, exp):
+    #print(subs)
+    for k in range(len(subs)):
+        for i in range(len(exp)):
+            if type(exp[i]) is list:
+                #print("This is exp[i]", exp[i])
+                for j in range(len(exp[i])):
+                    if exp[i][j] == subs[k][1]:
+                        #print(subs[0][1])
+                        #print(exp[i][j])
+                        exp[i][j] = subs[k][0]
+                    else:
+                        if exp[i] == subs[k][1]:
+                            exp[i] = subs[k][0]
 
 def clean_set(ans):
     for a in ans:
@@ -129,36 +146,58 @@ for j in range(len(input_list)):
         if input_list[j][i][0] == current[0][0] and input_list[j][i-1] == '~':
             poss = unify(current[0], input_list[j][i], answer)
             if poss != False:
-                print("It can work.")
-                print(poss)
+                #print("It can work.")
+                #print(poss)
                 break
         
 def resolute(lst):
-    answer = []
     steps = []
     premises = lst[:-1]
     current = lst[-1]
-    verdict = 0
+    while (premises != []  or current != []):
+        for p in range(len(premises)):
+            print("This is", current, "v/s", premises[p], "\n")
+            new = resolve(current, premises[p], steps)
+            if new == False:
+                continue
+            else:
+                p = 0
+                current = new
 
-    while (verdict == 0):
-        while(len(current) > 0 and premises):
-            for p in range(len(premises)):
-                for t in range(len(premises[p])):
-                    if premises[p][t] == current[c]:
-                        result = unify(premises[p][t], current[c], answer)
-                        if result != False:
-                            was_cur = current[c]
-                            #current.remove(t)
-                            current.remove(current[c])
-                            was_per = premises[p]
-                            premises[p].remove(premises[p][t])
-                            premises[p].remove(premises[p][t-1])
-                            new = current + premises[p]
-                            apply_subs(result, new)
-                            current = new
-                            premises
 
-                            
-                            
+
+steps = []               
+def resolve(c1, c2, steps):
+    answer = []
+    c3 = []
+    for p in range(len(c1)):
+        for q in range(len(c2)):
+            if (c1[p][0] == c2[q][0]):
+                if  (q == 0 and p > 0 and (c1[p - 1] == '~')) or (p == 0 and q > 0 and (c2[q - 1] == '~')) or (p > 0 and q > 0 and ((c2[q - 1] == '~') and (c2[p - 1] != '~') or (c2[q - 1] != '~') and (c2[p - 1] == '~'))):
+                    print("This is we are working on", c1[p])
+                    result = unify(c1[p], c2[q], answer)
+                    if (result != False):
+                        c1.remove(c1[p])
+                        c2.remove(c2[q])
+                        if p>0 and c1[p - 1] == "~":
+                            c1.pop(p-1)
+                        elif q>0 and c2[q-1] == "~":
+                            c2.pop(q-1)
+                        c3 = c1 + c2
+                        print("The result is", result)
+                        print("The c3 is", c3)
+                        if result != []:
+                            apply_subs_to_clause(result, c3)
+                        print(c3)
+    if c3 != []:
+        return c3
+    if c3 == []:
+        return False
+    
+
+#print(resolve(input_list[-1],input_list[1], steps))
+print(resolute(input_list))
+                    
+                
                             
                 

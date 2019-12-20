@@ -56,7 +56,7 @@ def StateSkolem(statement):
 		element = statement[elementn]
 		if len(stack) == 0 and element == '@':
 			stack.append(elementn)
-		if 
+		
 
 
 
@@ -146,10 +146,12 @@ def Standard(lst):
 		variableseen = {}
 		newstate = StateStandard(lst[statementn], variableseen, variables)
 		lst[statementn] = newstate
-		print(newstate)
+		# print(newstate)
 	print(lst)
 
-Standard(EXAMPLE1)
+
+print("-------------------------------")
+Standard(EXAMPLE2)
 	
 
-MakeClauses(CNF)
+# MakeClauses(CNF)

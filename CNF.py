@@ -1,4 +1,5 @@
 import copy
+import random
 
 operators = ['~', 'v', '^', '@', '$', '->', '<->']
 
@@ -221,6 +222,60 @@ def resolveTillNegation(FOL):
     
     return FOL
 
+skolemConstantsFunctionsLetters = []
+
+def generateSkolemConstantFunctionLetter(pred):
+    global skolemConstantsFunctionsLetters
+    asciiValue = random.randint(65,90)
+    doubleLetter = chr(asciiValue) + chr(asciiValue)
+    letter = chr(asciiValue)
+    while (letter in skolemConstantsFunctionsLetters or doubleLetter in skolemConstantsFunctionsLetters):
+        asciiValue = random.randint(65,90)
+        doubleLetter = chr(asciiValue) + chr(asciiValue)
+        letter = chr(asciiValue)
+    if len(pred) > 0:
+        skolemConstantsFunctionsLetters.append(doubleLetter)
+        return doubleLetter
+    else:
+        skolemConstantsFunctionsLetters.append(letter)
+        return letter
+
+
+def skolemizeVar(var, lst, pred,letter):
+    '''
+    @param: var-> variable to be skolemized, lst->['$',var,lst]
+    and pred contains all previous for all variables.
+    This function is sub-function for skolemization aka helper
+    '''
+    for i in range(len(lst)):
+        if type(lst[i]) == list:
+            skolemizeVar(var, lst[i], pred,letter)
+        if lst[i] == var:
+            lst[i] = [letter] + pred
+    return lst
+
+def skolemize(statement, pred):
+    '''
+    @param: statement and pred are lists, pred must passed as [] (empty list)
+    This function skolemizes the given statement
+    '''
+    if type(statement) != list:
+        # base case
+        return statement
+
+    if type(statement) == list and statement[0] == '@':
+        pred.append(statement[1])
+        skolemize(statement[2],pred)
+    
+    if type(statement) == list and statement[0] == '$':
+        skolemizeVar(statement[1], statement[2], pred,generateSkolemConstantFunctionLetter(pred))
+        return skolemize(statement[2], pred)
+    else:
+        for i in range(len(statement)):
+            statement[i] = skolemize(statement[i],pred)
+
+    return statement
+
 def main():
     '''
     Funtion for performing all tests
@@ -282,18 +337,51 @@ def main():
     # print(test2_moveInNegation)
     # print(moveInNegation(test2_moveInNegation))
 
-    print('###############################')
-    [print(i) for i in EXAMPLE1]
-    print('------------------------------')
-    [print(i) for i in resolveTillNegation(EXAMPLE1)]
+    # print('###############################')
+    # [print(i) for i in EXAMPLE1]
+    # print('------------------------------')
+    # [print(i) for i in resolveTillNegation(EXAMPLE1)]
     
-    print('###############################')
-    [print(i) for i in EXAMPLE2]
+    # print('###############################')
+    # [print(i) for i in EXAMPLE2]
+    # print('------------------------------')
+    # print(resolveTillNegation(EXAMPLE2))
+    # global skolemConstantsFunctionsLetters
+    # skolemConstantsFunctionsLetters += ['A', 'AA']
+    # print(generateSkolemConstantFunctionLetter(['x','y']))
+    # print(generateSkolemConstantFunctionLetter(['x','y']))
+    # print(generateSkolemConstantFunctionLetter(['x','y']))
+    # print(generateSkolemConstantFunctionLetter(['x','y']))
+    # print(generateSkolemConstantFunctionLetter(['x','y']))
+
+    test1_skolemize = ['$', 'y', ['@', 'x', ['LOYAL', 'x', 'y']]]
+    print(test1_skolemize)
+    print(skolemize(test1_skolemize,[]))
+
     print('------------------------------')
-    [print(i) for i in resolveTillNegation(EXAMPLE2)]
+
+    test2_skolemize = ['@', 'x', ['@', 'y', [[['PERSON', 'x'], '^', ['RULER', 'y'], '^',['TRYASSASIN', 'x', 'y']], '->', ['~', ['LOYAL', 'x', 'y']]]]]
+    print(test2_skolemize)
+    print(skolemize(test2_skolemize,[]))
+
+    print('------------------------------')
+
+    test3_skolemize = ['$', 'x', [['HAVE', 'John', 'x'], '^', [['CAT', 'x'], 'v', ['HOUND', 'x']]]]
+    print(test3_skolemize)
+    print(skolemize(test3_skolemize,[]))
+
+    print('------------------------------')
+
+    test4_skolemize = [['LS', 'John'], '->',
+                ['~', ['$', 'z', [['HAVE', 'John', 'z'], '^', ['MOUSE', 'z']]]]]
+    # implication(test4_skolemize)
+    # moveInNegation(test4_skolemize)
+    print(test4_skolemize)
+    print(skolemize(test4_skolemize,[]))
     
     return None
 
 
 if __name__ == "__main__":
     main()      # if this file is run, then main() function is called
+
